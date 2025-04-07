@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Quiz Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: url('https://source.unsplash.com/1600x900/?education,quiz') no-repeat center center/cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            text-align: center;
+        }
+        h1 {
+            color: #343a40;
+            font-size: 28px;
+        }
+        .question-review {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .question {
+            background: #ffecb3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 18px;
+            text-align: left;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        button {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: 0.3s;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #c2185b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="scorePage">
+        <h1>🏆 Quiz Results 🎉</h1>
+        <p>Total Score: <span id="finalScore">...</span></p>
+        <button onclick="showReview()">📖 Review Answers</button>
+        <div class="question-review" id="reviewSection"></div>
+    </div>
+
+    <script>
+        let urlParams = new URLSearchParams(window.location.search);
+        let score = urlParams.get("score") || 0;
+        document.getElementById("finalScore").textContent = score;
+
+        let userAnswers = JSON.parse(localStorage.getItem("userAnswers"));
+        let quizData = JSON.parse(localStorage.getItem("quiz"));
+        let reviewSection = document.getElementById("reviewSection");
+
+        function showReview() {
+            reviewSection.innerHTML = "";
+            reviewSection.style.display = "block";
+            
+            quizData.questions.forEach((q, index) => {
+                let userChoice = userAnswers[`q${index}`];
+                let isCorrect = userChoice == q.correct;
+
+                let questionDiv = document.createElement("div");
+                questionDiv.classList.add("question");
+                questionDiv.innerHTML = `
+                    <h3>${index + 1}. ${q.question}</h3>
+                    <p><strong>Your Answer:</strong> <span class="${isCorrect ? 'correct' : 'incorrect'}">${q.options[userChoice - 1] || 'Not Answered'}</span></p>
+                    <p><strong>Correct Answer:</strong> <span class="correct">${q.options[q.correct - 1]}</span></p>
+                `;
+                reviewSection.appendChild(questionDiv);
+            });
+        }
+    </script>
+</body>
+</html>

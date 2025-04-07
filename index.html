@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Online Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: url('https://source.unsplash.com/1600x900/?education,quiz') no-repeat center center/cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            text-align: center;
+        }
+        h1 {
+            color: #343a40;
+            font-size: 28px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 2px solid #6c757d;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #c2185b;
+        }
+        .question {
+            background: #ffecb3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            position: relative;
+            font-size: 18px;
+        }
+        .remove-btn {
+            background-color: #ff1744;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+        .remove-btn:hover {
+            background-color: #d50000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📜 Create Your Quiz 🎉</h1>
+        <form id="quizForm">
+            <input type="text" id="quizTitle" placeholder="📝 Enter Quiz Title" required>
+            <label>⏳ Set Time (minutes):</label>
+            <input type="number" id="quizTime" placeholder="Enter time in minutes" required>
+            <div id="questions"></div>
+            <button type="button" onclick="addQuestion()">➕ Add Question</button>
+            <button type="submit">🚀 Create Quiz</button>
+        </form>
+    </div>
+
+    <script>
+        let questionCount = 0;
+        
+        function addQuestion() {
+            questionCount++;
+            let questionDiv = document.createElement("div");
+            questionDiv.classList.add("question");
+            questionDiv.innerHTML = `
+                <button type="button" class="remove-btn" onclick="removeQuestion(this)">❌</button>
+                <h3>Question ${questionCount} ❓</h3>
+                <input type="text" name="question${questionCount}" placeholder="✍️ Enter your question" required>
+                <div class="options">
+                    <input type="text" name="q${questionCount}option1" placeholder="1️⃣ Option 1" required>
+                    <input type="text" name="q${questionCount}option2" placeholder="2️⃣ Option 2" required>
+                    <input type="text" name="q${questionCount}option3" placeholder="3️⃣ Option 3" required>
+                    <input type="text" name="q${questionCount}option4" placeholder="4️⃣ Option 4" required>
+                </div>
+                <label>✅ Correct Answer:</label>
+                <select name="q${questionCount}correct" required>
+                    <option value="1">1️⃣ Option 1</option>
+                    <option value="2">2️⃣ Option 2</option>
+                    <option value="3">3️⃣ Option 3</option>
+                    <option value="4">4️⃣ Option 4</option>
+                </select>
+                <label>🏆 Marks:</label>
+                <input type="number" name="q${questionCount}marks" placeholder="Enter marks" required>
+            `;
+            document.getElementById("questions").appendChild(questionDiv);
+        }
+
+        function removeQuestion(button) {
+            button.parentElement.remove();
+        }
+
+        document.getElementById("quizForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let quizData = {
+                title: document.getElementById("quizTitle").value,
+                time: document.getElementById("quizTime").value,
+                questions: []
+            };
+            document.querySelectorAll(".question").forEach((q, index) => {
+                let questionText = q.querySelector(`input[name^='question']`).value;
+                let options = [
+                    q.querySelector(`input[name^='q'][name$='option1']`).value,
+                    q.querySelector(`input[name^='q'][name$='option2']`).value,
+                    q.querySelector(`input[name^='q'][name$='option3']`).value,
+                    q.querySelector(`input[name^='q'][name$='option4']`).value
+                ];
+                let correctAnswer = q.querySelector(`select[name^='q'][name$='correct']`).value;
+                let marks = parseInt(q.querySelector(`input[name^='q'][name$='marks']`).value);
+                
+                quizData.questions.push({
+                    question: questionText,
+                    options: options,
+                    correct: correctAnswer,
+                    marks: marks
+                });
+            });
+            
+            localStorage.setItem("quiz", JSON.stringify(quizData));
+            alert("🎊 Quiz Created Successfully!");
+            window.location.href = "take_quiz.html";
+        });
+    </script>
+</body>
+</html>

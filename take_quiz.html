@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 Take Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: url('https://source.unsplash.com/1600x900/?exam,test') no-repeat center center/cover;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            text-align: center;
+        }
+        h1 {
+            color: #343a40;
+            font-size: 28px;
+        }
+        .question {
+            background: #ffecb3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 18px;
+            text-align: left;
+        }
+        button {
+            background-color: #ff4081;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #c2185b;
+        }
+        #timer {
+            font-size: 22px;
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Take Your Quiz 🎯</h1>
+        <p id="timer">⏳ Time Left: <span id="time"></span> minutes</p>
+        <form id="quizForm"></form>
+        <button onclick="submitQuiz()">🚀 Submit Quiz</button>
+    </div>
+
+    <script>
+        let quizData = JSON.parse(localStorage.getItem("quiz"));
+        let quizForm = document.getElementById("quizForm");
+        let timeLeft = parseInt(quizData.time) * 60;
+
+        function displayQuiz() {
+            document.getElementById("time").textContent = quizData.time;
+            quizData.questions.forEach((q, index) => {
+                let questionDiv = document.createElement("div");
+                questionDiv.classList.add("question");
+                questionDiv.innerHTML = `
+                    <h3>${index + 1}. ${q.question}</h3>
+                    ${q.options.map((opt, i) => `
+                        <label>
+                            <input type="radio" name="q${index}" value="${i + 1}"> ${opt}
+                        </label><br>
+                    `).join('')}
+                `;
+                quizForm.appendChild(questionDiv);
+            });
+        }
+
+        function startTimer() {
+            let timerInterval = setInterval(() => {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                document.getElementById("time").textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            let userAnswers = {};
+
+            quizData.questions.forEach((q, index) => {
+                let selected = document.querySelector(`input[name="q${index}"]:checked`);
+                let answerValue = selected ? selected.value : null;
+                userAnswers[`q${index}`] = answerValue;
+
+                if (answerValue == q.correct) {
+                    score += q.marks;
+                }
+            });
+
+            localStorage.setItem("userAnswers", JSON.stringify(userAnswers));
+            window.location.href = `results.html?score=${score}`;
+        }
+
+        displayQuiz();
+        startTimer();
+    </script>
+</body>
+</html>
